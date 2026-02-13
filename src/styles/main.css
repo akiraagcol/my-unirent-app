@@ -1,0 +1,14 @@
+@import "./theme.css";
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: var(--background);
+  color: var(--textPrimary);
+}
+
+.container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px;
+}
