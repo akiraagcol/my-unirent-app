@@ -1,14 +1,40 @@
-@import "./theme.css";
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap');
 
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  background: var(--background);
-  color: var(--textPrimary);
+:root {
+  --ustp-navy: #0a1929;
+  --ustp-gold: #ffa726;
+  --bg-creme: #faf8f3;
+
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+
+  --status-total: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --status-available: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --status-occupied: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+  --status-maintenance: linear-gradient(135deg, #dc2626 0%, #f43f5e 100%);
 }
 
-.container{
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 18px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: var(--bg-creme);
+  font-family: 'Outfit', sans-serif;
+  color: var(--slate-900);
 }

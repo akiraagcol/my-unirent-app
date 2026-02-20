@@ -1,33 +1,25 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/Welcome.css";
 import logo from "../assets/logo.png";
 
 export default function WelcomePage() {
-  const tagline = "Browse and rent IoT devices for your projects"; // variable
+  const navigate = useNavigate();
 
   return (
-    <>
-      <header style={{ padding: 16 }}>
-        <h1 style={{ margin: 0 }}>UniRent</h1>
-      </header>
+    <div className="welcome-container">
+      <div className="welcome-content">
+        <img src={logo} alt="UniRent logo" className="welcome-logo" />
+        <p className="welcome-subtitle">Browse and rent IoT devices for your projects</p>
 
-      <main style={{ padding: 20, textAlign: "center" }}>
-        <section>
-          <img
-            src={logo}
-            alt="UniRent logo"
-            style={{ width: "90%", maxWidth: 520, height: "auto" }}
-          />
-          <p style={{ fontWeight: 600 }}>{tagline}</p>
-        </section>
-
-        <section style={{ marginTop: 30 }}>
-          <button style={{ margin: 8, padding: "10px 16px" }}>Get Started</button>
-          <button style={{ margin: 8, padding: "10px 16px" }}>Create Account</button>
-        </section>
-      </main>
-
-      <footer style={{ padding: 16, textAlign: "center", opacity: 0.7 }}>
-        © 2026 UniRent
-      </footer>
-    </>
+        <div className="button-group">
+          <button className="primary-btn" onClick={() => navigate("/signup")}>
+            Get Started
+          </button>
+        
+        </div>
+        <div className="footer-text">© 2026 UniRent</div>
+      </div>
+    </div>
   );
 }
