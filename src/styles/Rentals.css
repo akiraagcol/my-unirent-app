@@ -1,150 +1,187 @@
-/* Container and Layout */
+/* Container to hold everything */
 .rentals-container {
-  padding: 40px 60px;
-  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  background-color: #f1f5f9;
 }
 
-/* Header Alignment */
+/* Fixed Header */
 .rentals-header {
+  background: #1e293b;
+  padding: 15px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-}
-
-.logo-text { font-size: 28px; font-weight: 800; color: #1e293b; }
-.logo-accent { color: #2563eb; }
-
-.header-right {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.nav-icon-btn {
-  background: white;
-  border: 1px solid #e2e8f0;
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  transition: 0.2s;
-}
-
-.dashboard-link-btn {
-  background: #1e293b;
-  color: white;
-  padding: 10px 24px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Search Bar Fixes */
-.search-filter-section {
-  max-width: 800px;
-  margin-bottom: 40px;
-}
-
-.search-wrapper {
-  display: flex;
-  align-items: center;
-  background: white;
-  padding: 14px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  border: none;
-  outline: none;
+  border-bottom: 5px solid #f1c40f;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   width: 100%;
-  margin-left: 10px;
-  font-size: 1rem;
+  box-sizing: border-box;
 }
 
-/* Category Pill Fixes */
-.category-container {
+.back-dashboard-btn {
+  background: transparent;
+  border: 1px solid #ffffff44;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-bar-container {
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  background: white; /* Container background */
+  padding: 8px 15px;
+  border-radius: 8px;
+  margin: 0 20px;
+}
+
+.search-bar-container .search-icon {
+  color: #64748b; /* Gray icon color */
+  margin-right: 8px;
+}
+
+.search-bar-container input {
+  border: none;
+  width: 100%;
+  outline: none;
+  font-size: 0.95rem;
+  background: white !important; /* Forces white background */
+  color: #1e293b !important;    /* Forces dark text so you can see it */
+}
+
+/* Fixes the "black" appearance caused by dark-mode browser defaults */
+.search-bar-container input::placeholder {
+  color: #94a3b8;
+}
+
+.rentals-header-icons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: white;
+}
+
+/* Content Area */
+.rentals-main {
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-filter-container {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
 
-.category-pill {
-  padding: 10px 25px;
-  border-radius: 25px;
-  border: 1px solid #cbd5e1;
+.filter-tab {
   background: white;
-  font-weight: 600;
-  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 8px 18px;
+  border-radius: 20px;
   cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  transition: all 0.2s ease;
 }
 
-.category-pill.active {
-  background: #fbbf24; /* Golden Yellow from mobile ref */
-  border-color: #fbbf24;
-  color: #1e293b;
+.filter-tab.active {
+  background: #1e293b;
+  color: #f1c40f;
+  border-color: #1e293b;
 }
 
-/* Product Grid Alignment */
-.rentals-grid {
+/* Inventory Grid - Set to 1fr to fill the right side spacing */
+.inventory-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
+  gap: 25px;
+  width: 100%;
 }
 
-.item-card {
-  background: #1e293b; /* Navy Blue from ref */
-  border-radius: 20px;
-  padding: 18px;
-  transition: transform 0.2s;
-}
-
-.item-card:hover { transform: translateY(-5px); }
-
-.item-image-area {
-  background: #f1f5f9;
-  height: 200px;
+.device-card {
+  background: #1e293b;
   border-radius: 15px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image-box {
+  height: 180px;
+  background: #ffffff;
   position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+}
+
+.status-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: white;
+}
+
+.status-tag.available { background: #2ecc71; }
+.status-tag.occupied { background: #e74c3c; }
+
+.device-details {
+  padding: 20px;
+  color: white;
+}
+
+.item-name { font-size: 1.1rem; margin-bottom: 5px; }
+.item-category { font-size: 0.8rem; color: #94a3b8; margin-bottom: 15px; }
+
+.item-price {
+  color: #f1c40f;
+  font-size: 1.5rem;
+  font-weight: 800;
   margin-bottom: 15px;
 }
 
-.availability-tag {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+.per-day { font-size: 0.9rem; color: #f1c40f; }
+
+.rent-action-btn {
+  background: #f1c40f;
+  color: #1e293b;
   font-weight: 800;
-  color: #10b981;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  border-radius: 8px;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  cursor: pointer;
 }
 
-.item-title {
-  color: #f8fafc;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-  letter-spacing: 0.5px;
+.rent-action-btn:disabled {
+  background: #64748b;
+  cursor: not-allowed;
 }
 
-.item-price {
-  color: #fbbf24; /* Golden Yellow price */
-  font-size: 1.4rem;
-  font-weight: 800;
+.no-results-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 50px;
+  color: #64748b;
 }

@@ -7,7 +7,6 @@ import "../styles/Dashboard.css";
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  // Data arrays used for array-based rendering [cite: 113, 120]
   const stats = [
     { label: "TOTAL", count: 11, color: "total-card" },
     { label: "AVAILABLE", count: 7, color: "available-card" },

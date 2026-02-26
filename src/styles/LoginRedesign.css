@@ -1,0 +1,172 @@
+/* UniRent Unified Landing Page Styles 
+   Used by: WelcomePage.jsx and SignUpPage.jsx
+*/
+
+/* 1. Global Reset for Landing Pages */
+.welcome-split-screen {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+}
+
+/* 2. Left Column: The Form Side (Isolating the interaction area) */
+.form-column {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  z-index: 2;
+  /* Allows the long Sign Up form to scroll if the screen is short */
+  overflow-y: auto; 
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px; /* Slightly wider for the registration fields */
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* 3. Branding/Logo Styles */
+.form-logo {
+  width: 250px;           /* Big and prominent like USTP portal */
+  height: auto;
+  margin-bottom: 25px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+.welcome-title {
+  font-size: 1.8rem;
+  color: #1e293b;
+  margin-bottom: 25px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* 4. Input & Select Field Styling */
+.input-group {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px; /* Tighter spacing for the longer signup form */
+  padding: 0 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group:focus-within {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.input-group input, 
+.input-group select {
+  border: none;
+  background: transparent;
+  padding: 14px 0;
+  width: 100%;
+  outline: none;
+  font-size: 0.95rem;
+  color: #0f172a; /* Dark navy for best readability */
+}
+
+/* Specific fix for the Date and Select icons */
+.input-group select {
+  cursor: pointer;
+  padding-right: 10px;
+}
+
+/* 5. Buttons (Consistent Colors) */
+.login-btn, .signup-btn {
+  width: 100%;
+  padding: 14px;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn { background: #f1c40f; } /* USTP Gold */
+.login-btn:hover { background: #d4ac0d; }
+
+.signup-btn { background: #3498db; } /* UniRent Blue */
+.signup-btn:hover { background: #2980b9; }
+
+.divider-line {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 25px 0;
+}
+
+.signup-prompt {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+/* 6. Right Column: Branding Side (The Indigo Gradient Side) */
+.branding-column {
+  flex: 1.5; 
+  background-color: #1e293b;
+  /* Tip: Add your background image here */
+  background: url('/src/assets/iot-bg.jpg') no-repeat center center; 
+  background-size: cover;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-gradient {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(52, 152, 219, 0.8));
+  z-index: 1;
+}
+
+.branding-text {
+  position: relative;
+  z-index: 10;
+  color: white;
+  text-align: center;
+  padding: 40px;
+}
+
+.main-brand-name {
+  font-size: 4.5rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.brand-tagline {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+/* 7. Responsive Fixes */
+@media (max-width: 1024px) {
+  .branding-column {
+    display: none; /* Only show the form on smaller tablets/phones */
+  }
+  .form-column {
+    flex: 1;
+  }
+}
