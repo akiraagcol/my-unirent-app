@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/LoginRedesign.css"; // Reuse your existing CSS for consistency
+import "../styles/LoginRedesign.css"; 
 
 export default function SignUpPage() {
   const navigate = useNavigate();
 
-  // Task 1: Component state for registration data
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -15,29 +14,76 @@ export default function SignUpPage() {
     birthdate: "",
     college: ""
   });
+  
+  // New states for handling loading and errors from the backend
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear old errors
     
+    // 1. Password Match Check
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Passwords do not match! Please try again.");
+      return; 
+    }
     
-    console.log("Account Created successfully!", formData);
+    // 2. Start loading
+    setIsLoading(true);
 
-    navigate("/dashboard"); 
+    try {
+      // 3. Send data to your Django Backend
+      const response = await fetch("http://192.168.5.95:8000/api/register/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // Mapping frontend fields to what Django expects
+          username: formData.studentId, 
+          password: formData.password,
+          email: formData.email,
+          full_name: formData.fullName,
+          department: formData.college,
+          birthday: formData.birthdate
+        }),
+      });
+
+      // 4. Handle Backend Response
+      if (response.ok) {
+        alert("Account created successfully!");
+        navigate("/"); // Send them back to Sign In
+      } else {
+        const data = await response.json();
+        setErrorMessage(data.error || "Registration failed. Username may already exist.");
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+      setErrorMessage("Network error: Cannot reach the server. Is Django running?");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="welcome-split-screen">
-      {/* LEFT SIDE: Registration Form Section */}
       <div className="form-column">
         <div className="form-container" style={{ maxWidth: "450px" }}>
           <img src="/src/assets/adaptive-icon.png" alt="UniRent Logo" className="form-logo" style={{ width: "150px" }} />
           <h2 className="welcome-title" style={{ marginBottom: "20px" }}>Create Account</h2>
           
           <form onSubmit={handleSignUp} className="signin-form">
+            
+            {/* Display Backend Errors Here */}
+            {errorMessage && (
+              <div style={{ color: "red", marginBottom: "15px", fontSize: "0.9rem", textAlign: "center", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px" }}>
+                {errorMessage}
+              </div>
+            )}
+
             <div className="input-group">
               <input type="text" name="fullName" placeholder="Full Name" onChange={handleChange} required />
             </div>
@@ -79,8 +125,8 @@ export default function SignUpPage() {
               </label>
             </div>
 
-            <button type="submit" className="signup-btn" style={{ width: "100%", background: "#3498db" }}>
-              Create Account
+            <button type="submit" className="signup-btn" disabled={isLoading} style={{ width: "100%", background: "#3498db", color: "white", padding: "12px", border: "none", borderRadius: "5px", cursor: isLoading ? "not-allowed" : "pointer" }}>
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
             
             <p className="signup-prompt" style={{ marginTop: "20px" }}>
@@ -93,7 +139,6 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: Branding Section (Same as Welcome Page) */}
       <div className="branding-column">
         <div className="overlay-gradient"></div>
         <div className="branding-text">

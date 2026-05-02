@@ -1,132 +1,98 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Welcome.css";
 
 export default function RegistrationForm() {
   const navigate = useNavigate();
-  
   const [formData, setFormData] = useState({
     fullName: "",
     birthday: "",
     department: "",
     password: "",
-    confirmPassword: "",
-    studentIdFile: null
+    confirmPassword: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation to check if passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
+    setIsLoading(true);
 
-    console.log("Registration Data:", formData);
-    navigate("/dashboard");
-  };
+    try {
+      // Updated to your MacBook's network IP
+      const response = await fetch("http://192.168.5.95:8000/api/register/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // Task 4 & 6: Ensure data keys match the backend's expected request.data
+          username: formData.fullName.replace(/\s+/g, '').toLowerCase(),
+          password: formData.password,
+          full_name: formData.fullName, // matches data.get('full_name') in fixed views.py
+          department: formData.department,
+          birthday: formData.birthday
+        }),
+      });
 
-  const inputStyle = {
-    width: "100%",
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #334155",
-    background: "#1e293b",
-    color: "white",
-    fontSize: "1rem",
-    boxSizing: "border-box"
+      if (response.ok) {
+        // Task 8: Success message handling
+        alert("Success!");
+        navigate("/login");
+      } else {
+        const data = await response.json();
+        // Task 8: Error message handling
+        alert(data.error || "Registration failed.");
+      }
+    } catch (error) {
+      alert("Network error.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="welcome-container">
-      <div className="welcome-content" style={{ maxWidth: '500px' }}>
-        <h2 className="welcome-title" style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>
-          Registration
-        </h2>
-        <p className="welcome-subtitle" style={{ marginBottom: "2rem" }}>
-          Please complete your details to access the UniRent dashboard.
-        </p>
-
-        <form onSubmit={handleSubmit} style={{ width: "100%", textAlign: "left" }}>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>Full Name</label>
-            <input 
-              type="text" 
-              required 
-              style={inputStyle} 
-              placeholder="Enter your full name"
-              onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-            />
-          </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>Birthday</label>
-            <input 
-              type="date" 
-              required 
-              style={inputStyle} 
-              onChange={(e) => setFormData({...formData, birthday: e.target.value})}
-            />
-          </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>College / Department</label>
-            <select 
-              required 
-              style={inputStyle}
-              onChange={(e) => setFormData({...formData, department: e.target.value})}
-            >
-              <option value="">Select Department</option>
-              <option value="CEA">College of Engineering and Architecture</option>
-              <option value="CIT">College of Information Technology</option>
-              <option value="COT">College of Technology</option>
-              <option value="CSTE">College of Science and Technology Education</option>
-            </select>
-          </div>
-
-          {/* New Password Field */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>Password</label>
-            <input 
-              type="password" 
-              required 
-              style={inputStyle} 
-              placeholder="Create a password"
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-            />
-          </div>
-
-          {/* New Confirm Password Field */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>Confirm Password</label>
-            <input 
-              type="password" 
-              required 
-              style={inputStyle} 
-              placeholder="Re-type your password"
-              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-            />
-          </div>
-
-          <div style={{ marginBottom: "2rem" }}>
-            <label style={{ color: "white", display: "block", marginBottom: "0.5rem" }}>Upload Student ID</label>
-            <input 
-              type="file" 
-              required 
-              accept="image/*,.pdf"
-              style={{ ...inputStyle, padding: "8px" }}
-              onChange={(e) => setFormData({...formData, studentIdFile: e.target.files[0]})}
-            />
-          </div>
-
-          <div className="button-group">
-            <button type="submit" className="primary-btn" style={{ width: "100%" }}>
-              Complete & Enter Dashboard
-            </button>
-          </div>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <input 
+          name="fullName" 
+          placeholder="Full Name" 
+          required 
+          onChange={(e) => setFormData({...formData, fullName: e.target.value})} 
+        />
+        <input 
+          name="birthday" 
+          type="date" 
+          required 
+          onChange={(e) => setFormData({...formData, birthday: e.target.value})} 
+        />
+        <select 
+          name="department" 
+          required 
+          onChange={(e) => setFormData({...formData, department: e.target.value})}
+        >
+          <option value="">Select Department</option>
+          <option value="CIT">CIT</option>
+          <option value="CEA">CEA</option>
+        </select>
+        <input 
+          name="password" 
+          type="password" 
+          required 
+          onChange={(e) => setFormData({...formData, password: e.target.value})} 
+        />
+        <input 
+          name="confirmPassword" 
+          type="password" 
+          required 
+          onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} 
+        />
+        
+        {/* CRITICAL: type="submit" trigger for form submission */}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Processing..." : "Register"}
+        </button>
+      </form>
     </div>
   );
 }

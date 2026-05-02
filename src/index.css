@@ -23,7 +23,6 @@ a:hover {
 }
 body {
   margin: 0;
-  /* Remove display: flex and place-items: center */
   display: block; 
   width: 100%;
   min-height: 100vh;
@@ -54,20 +53,39 @@ button {
 button:hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
-  }
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* --- Toast Notification: Optimized for Lab 5 Visibility [cite: 15, 83] --- */
+.toast-notification {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1a1c2c !important; /* UniRent Navy */
+  color: #f1c40f !important; /* UniRent Gold */
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  z-index: 100000; /* Ensure it stays on top [cite: 79] */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid #f1c40f;
+  pointer-events: none;
+  animation: slideDownFade 0.4s ease-out forwards;
+}
+
+@keyframes slideDownFade {
+  0% { top: -60px; opacity: 0; }
+  100% { top: 30px; opacity: 1; }
 }

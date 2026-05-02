@@ -1,0 +1,124 @@
+/* styles/RentDetails.css */
+
+.modern-rent-bg {
+    background: linear-gradient(135deg, #eaf6ff 0%, #ffffff 100%); /* Sky Blue to White */
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  
+  .marketplace-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .breadcrumb-nav { margin-bottom: 20px; }
+  .text-link { background: none; border: none; color: #0066cc; cursor: pointer; font-weight: 600; }
+  
+  /* Main Card Layout */
+  .main-product-card {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 102, 204, 0.08); /* Subtle blue shadow */
+    margin-bottom: 30px;
+  }
+  
+  /* Image Section */
+  .main-image-wrapper {
+    position: relative;
+    background: #f8fbff;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .floating-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #dcfce7;
+    color: #166534;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  
+  .thumbnail-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  
+  .thumb {
+    width: 80px;
+    height: 80px;
+    background: #f0f7ff;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .thumb.active { border: 2px solid #001f3f; }
+  
+  /* Info Section */
+  .product-title { font-size: 42px; font-weight: 800; color: #001f3f; margin: 0 0 10px 0; }
+  .price-box { margin-bottom: 30px; }
+  .price-main { font-size: 48px; font-weight: 800; color: #001f3f; }
+  .price-unit { font-size: 20px; color: #64748b; margin-left: 8px; }
+  
+  .label-small { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+  
+  .calendar-trigger {
+    width: 100%;
+    padding: 16px;
+    margin-top: 10px;
+    border: 2px solid #e2eefc;
+    background: black;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-weight: 600;
+  }
+  
+  .owner-profile-card {
+    display: flex;
+    align-items: center;
+    background: #f0f7ff;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 30px 0;
+  }
+  
+  .avatar-circle { font-size: 32px; margin-right: 15px; }
+  .posted-label { font-size: 12px; margin: 0; color: #64748b; }
+  .owner-name-text { font-weight: 800; margin: 0; font-size: 18px; }
+  .rating-row { font-size: 14px; margin-top: 4px; }
+  
+  .chat-btn-modern {
+    margin-left: auto;
+    background: black;
+    border: 1px solid #001f3f;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  
+  /* Primary Buttons */
+  .purchase-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .btn-secondary-yellow { background: #ffea00; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+  .btn-primary-navy { background: #001f3f; color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+  
+  /* Bottom Content */
+  .secondary-content-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
+  .shadow-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+  .mt-20 { margin-top: 20px; }
+  
+  @media (max-width: 992px) {
+    .main-product-card, .secondary-content-grid { grid-template-columns: 1fr; }
+  }

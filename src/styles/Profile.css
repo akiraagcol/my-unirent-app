@@ -1,0 +1,132 @@
+/* styles/Profile.css */
+
+.dashboard-bg {
+  background-color: #f8fafc; /* Professional light gray background [cite: 81] */
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboard-nav {
+  background: #1e293b;
+  padding: 15px 0;
+  border-bottom: 4px solid #f1c40f; /* UniRent Signature Yellow */
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.minimal-back-btn {
+  background: transparent;
+  color: #f1c40f;
+  border: 1px solid #f1c40f;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Grid System [cite: 19] */
+.profile-dashboard-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 30px;
+}
+
+/* Sidebar Styling */
+.profile-summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Modern subtle shadow [cite: 85] */
+  text-align: center;
+}
+
+.avatar-wrapper { position: relative; width: 100px; margin: 0 auto 15px; }
+.avatar-main { font-size: 60px; background: #f1f5f9; width: 100px; height: 100px; line-height: 100px; border-radius: 50%; }
+.online-indicator { position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: #22c55e; border: 3px solid white; border-radius: 50%; }
+
+.user-fullname { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+.user-student-id { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+.premium-pill { background: #fef9c3; color: #854d0e; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+
+.divider-light { border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0; }
+
+.identity-meta-list { text-align: left; margin-bottom: 25px; }
+.meta-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+.meta-item label { color: #64748b; }
+.meta-item span { font-weight: 600; color: #1e293b; }
+
+.sidebar-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+.stat-unit { display: flex; flex-direction: column; }
+.stat-value { font-size: 18px; font-weight: 800; color: #0f172a; }
+.stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; }
+
+/* Dashboard Content Styling */
+.compact-verify-banner {
+  background: #0f172a;
+  padding: 20px 30px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.banner-content { display: flex; align-items: center; gap: 20px; }
+.shield-icon { font-size: 28px; }
+.banner-text h3 { color: #f1c40f; font-size: 16px; margin-bottom: 2px; }
+.banner-text p { color: #94a3b8; font-size: 13px; }
+
+.btn-verify-now { background: #f1c40f; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+.dual-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+.dashboard-card { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.card-heading { font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 20px; }
+
+.menu-list { display: flex; flex-direction: column; }
+.menu-item-btn {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+  font-weight: 600;
+  color: #475569;
+  transition: color 0.2s;
+}
+.menu-item-btn:hover { color: #2563eb; }
+
+.btn-logout-minimal {
+  width: 100%;
+  margin-top: 20px;
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout-minimal:hover { background: #fee2e2; }
+
+/* Responsiveness  */
+@media (max-width: 992px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .dual-section-grid { grid-template-columns: 1fr; }
+}
