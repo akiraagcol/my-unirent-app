@@ -1,25 +1,36 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import CustomButton from "../components/CustomButton";
+import { useNavigate, useLocation } from "react-router-dom";
+// Note: Removed CustomButton import if you aren't actively using it in this file
 import "../styles/RentDetails.css";
 
-export default function RentDetailsPage() {
+// We accept addToCart as a prop because App.jsx passes it!
+export default function RentDetailsPage({ addToCart }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Catch the item passed from the RentalsPage
+  const item = location.state?.item;
 
-  const item = {
-    name: "Arduino Uno R3",
-    price: 25,
-    status: "Available",
-    owner: "Justin N.",
-    rating: 4.8,
-    reviews: 25,
-    description: "The Arduino Uno R3 is a microcontroller board based on the ATmega328P. It has 14 digital input/output pins, 6 analog inputs, and a 16 MHz quartz crystal.",
-    specs: ["Microcontroller: ATmega328P", "Operating Voltage: 5V", "Input Voltage: 7-12V", "Digital I/O Pins: 14"],
-    terms: "Minimum 2 days rental. Return in original condition. Late fees apply."
-  };
+  // Security fallback: If someone refreshes the page or types the URL manually 
+  // without clicking an item first, send them back to the marketplace.
+  if (!item) {
+    return (
+      <div className="modern-rent-bg" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', flexDirection: 'column'}}>
+        <h2>Item not found.</h2>
+        <button className="btn-primary-navy" onClick={() => navigate("/rentals")} style={{marginTop: "20px", padding: "10px 20px"}}>
+          Return to Marketplace
+        </button>
+      </div>
+    );
+  }
+
+  // Safely format the image URL just like we did on the Rentals page
+  const imageUrl = item.image 
+    ? (item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`) 
+    : null;
 
   return (
-    <div className="modern-rent-bg"> {/* Sky Blue Background wrapper */}
+    <div className="modern-rent-bg">
       <main className="marketplace-container">
         <header className="breadcrumb-nav">
           <button type="button" className="text-link" onClick={() => navigate(-1)}>
@@ -31,21 +42,25 @@ export default function RentDetailsPage() {
           {/* Left: Image Gallery Section */}
           <div className="gallery-column">
             <div className="main-image-wrapper">
-              <span className={`floating-badge ${item.status.toLowerCase()}`}>
-                {item.status}
+              <span className={`floating-badge ${(item.status || "AVAILABLE").toLowerCase()}`}>
+                {item.status || "AVAILABLE"}
               </span>
-              <img src="https://via.placeholder.com/600x450" alt={item.name} className="big-image" />
-            </div>
-            <div className="thumbnail-row">
-              <div className="thumb active"></div>
-              <div className="thumb"></div>
-              <div className="thumb"></div>
+              
+              {imageUrl ? (
+                <img src={imageUrl} alt={item.title} className="big-image" style={{ objectFit: 'contain', backgroundColor: 'white' }} />
+              ) : (
+                <div className="big-image" style={{ backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>
+                  No Image Provided
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right: Essential Info Section */}
           <div className="details-column">
-            <h1 className="product-title">{item.name}</h1>
+            {/* Swapped item.name for item.title (Django field) */}
+            <h1 className="product-title">{item.title}</h1> 
+            <p className="item-category" style={{color: "#64748b", fontWeight: "bold", textTransform: "uppercase", fontSize: "0.85rem"}}>{item.category}</p>
             
             <div className="price-box">
               <span className="price-main">₱{item.price}</span>
@@ -63,37 +78,53 @@ export default function RentDetailsPage() {
               <div className="avatar-circle">👤</div>
               <div className="owner-info">
                 <p className="posted-label">Posted by</p>
-                <p className="owner-name-text">{item.owner}</p>
-                <div className="rating-row">⭐ {item.rating} <span>({item.reviews} reviews)</span></div>
+                {/* Note: Owner is currently a Django ID number. You can expand the Django Serializer later to send the real name! */}
+                <p className="owner-name-text">Verified User (ID: {item.owner})</p>
+                <div className="rating-row">⭐ {item.rating || 0} <span>(0 reviews)</span></div>
               </div>
               <button type="button" className="chat-btn-modern">Chat</button>
             </div>
 
-            <button type="button" className="primary-rent-btn" onClick={addItem}>
-                 Add Test Locker
-              </button>
-
             <div className="purchase-buttons">
-              <button type="button" className="btn-secondary-yellow">Add to Cart</button>
-              <button type="button" className="btn-primary-navy">Rent Now</button>
+              <button 
+                type="button" 
+                className="btn-secondary-yellow"
+                disabled={item.status === "Occupied"}
+                onClick={() => {
+                  addToCart(item);
+                  navigate("/cart"); // Automatically take them to cart after adding
+                }}
+                style={{ opacity: item.status === "Occupied" ? 0.5 : 1, cursor: item.status === "Occupied" ? "not-allowed" : "pointer" }}
+              >
+                Add to Cart
+              </button>
+              
+              <button 
+                type="button" 
+                className="btn-primary-navy"
+                disabled={item.status === "Occupied"}
+                style={{ opacity: item.status === "Occupied" ? 0.5 : 1, cursor: item.status === "Occupied" ? "not-allowed" : "pointer" }}
+              >
+                {item.status === "Occupied" ? "Currently Rented" : "Rent Now"}
+              </button>
             </div>
           </div>
         </section>
 
-        {/* New Sections to fill whitespace */}
         <div className="secondary-content-grid">
           <section className="description-box shadow-card">
             <h3>Item Description</h3>
-            <p>{item.description}</p>
-            <h3 className="mt-20">Specifications</h3>
+            <p>{item.description || "No description provided by the owner."}</p>
+            
+            <h3 className="mt-20">Locker Location</h3>
             <ul>
-              {item.specs.map((spec, i) => <li key={i}>{spec}</li>)}
+              <li>Pickup at: <strong>{item.locker_label}</strong></li>
             </ul>
           </section>
 
           <aside className="terms-box shadow-card">
             <h3>Rental Terms</h3>
-            <p>{item.terms}</p>
+            <p>Minimum 2 days rental. Return in original condition to the assigned locker. Late fees apply for overdue returns.</p>
           </aside>
         </div>
       </main>

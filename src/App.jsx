@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import WelcomePage from './pages/WelcomePage';
 import SignUpPage from './pages/SignUpPage'; 
-import RegistrationForm from './pages/RegistrationForm';
 import Dashboard from './pages/Dashboard';
 import RentalsPage from './pages/RentalsPage';
 import ProfilePage from "./pages/ProfilePage";
 import RentDetailsPage from './pages/RentDetailsPage';
 import CartPage from './pages/CartPage';
-import MessagesPage from './pages/MessagesPage'; // IMPORT THE NEW PAGE
+import CheckoutPage from './pages/CheckoutPage'; // IMPORT THE NEW PAGE
+import MessagesPage from './pages/MessagesPage'; 
 
 function App() {
   // --- CART STATE ---
@@ -32,16 +32,19 @@ function App() {
     localStorage.setItem('uniRentCart', JSON.stringify(cart));
   }, [cart]);
   
-
   const addToCart = (product) => {
     setCart((prev) => [...prev, product]);
-    setToast(`${product.name} added to cart!`);
+    // Updated to use product.title (since Django uses 'title' instead of 'name')
+    setToast(`${product.title || product.name || 'Item'} added to cart!`);
     setTimeout(() => setToast(null), 3000);
   };
 
   const removeFromCart = (indexToRemove) => {
     setCart((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
+
+  // FIXED: Moved clearCart outside so it's a standalone function
+  const clearCart = () => setCart([]);
 
   return (
     <Router>
@@ -51,7 +54,6 @@ function App() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/register-details" element={<RegistrationForm />} />
         
         {/* Pass system notifications to Dashboard */}
         <Route 
@@ -71,7 +73,12 @@ function App() {
         
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/rent-details" element={<RentDetailsPage addToCart={addToCart} />} />
-        <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
+        
+        {/* Passed the clearCart function as a prop to the CartPage */}
+        <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} clearCart={clearCart} />} />
+        
+        {/* THE NEW CHECKOUT ROUTE */}
+        <Route path="/checkout" element={<CheckoutPage cart={cart} clearCart={clearCart} />} />
         
         {/* NEW MESSAGES ROUTE: This connects the Messages UI */}
         <Route path="/messages" element={<MessagesPage />} />

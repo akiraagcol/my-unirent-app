@@ -1,57 +1,54 @@
-import React, { useState, useEffect } from "react"; // Added useEffect for Lab 9 Task 3
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import StatCard from "../components/StatCard"; 
-import LockerItem from "../components/LockerItem"; 
 import "../styles/Dashboard.css";
 import "../styles/Notifications.css"; 
 
 export default function Dashboard({ cartCount, notifications }) {
   const navigate = useNavigate();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  
-  // Task 3: State to store real database data[cite: 2]
-  const [lockers, setLockers] = useState([]);
+  const [rentals, setRentals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addItem = () => {
-    const newItem = {
-      id: "D1", // Example ID
-      status: "Available"
-    };
-  
-    fetch("http://127.0.0.1:8000/api/items/", {
-      method: "POST", // The method for creating data
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newItem), // Converts your JS object to JSON strings[cite: 2]
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Success:", data);
-      // Refresh the list so the new item shows up[cite: 2]
-      window.location.reload(); 
-    })
-    .catch(err => console.error("Error adding item:", err));
-  };
-
-  // Task 3: Fetching data from your Django REST API
+  // Fetch only the logged-in user's rentals
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/items/") // Replace with your actual endpoint from Lab 8
-      .then((res) => res.json())
-      .then((data) => {
-        setLockers(data); // Injects real data into the UI[cite: 2]
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/");
+      return;
+    }
+
+    fetch("http://192.168.5.95:8000/api/my-rentals/", {
+      headers: {
+        "Authorization": `Token ${token}`, 
+        "Content-Type": "application/json"
+      }
+    }) 
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch rentals.");
+        return res.json();
       })
-      .catch((err) => console.error("Data flow error:", err));
-  }, []);
+      .then((data) => {
+        setRentals(data); 
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Data flow error:", err);
+        setIsLoading(false);
+      });
+  }, [navigate]);
+
+  // Dynamic Stats
+  const activeRentals = rentals.filter(r => r.status === "Active").length;
+  const overdueRentals = rentals.filter(r => r.status === "Overdue").length;
 
   const stats = [
-    { label: "TOTAL", count: 11, color: "total-card" },
-    { label: "AVAILABLE", count: 7, color: "available-card" },
-    { label: "OCCUPIED", count: 4, color: "occupied-card" },
-    { label: "MAINTENANCE", count: 2, color: "maintenance-card" },
+    { label: "TOTAL RENTED", count: rentals.length, color: "total-card" }, 
+    { label: "ACTIVE PICKUPS", count: activeRentals, color: "available-card" }, 
+    { label: "OVERDUE", count: overdueRentals, color: "occupied-card" }, 
+    { label: "MESSAGES", count: 0, color: "maintenance-card" },
   ];
-
-  /* Static lockers array removed to satisfy Task 7: "Interact with database only through API"[cite: 2] */
 
   return (
     <div className="dashboard-container">
@@ -136,33 +133,79 @@ export default function Dashboard({ cartCount, notifications }) {
       </div>
 
       <div className="dashboard-main-content">
-        <div className="section-card locker-section">
-          <h3 className="section-heading">Locker Status</h3>
-          <div className="locker-grid">
-            {/* Task 7: Display updated data retrieved from API[cite: 1] */}
-            {lockers.length === 0 ? <p>Loading system data...</p> : 
-              lockers.map((locker) => (
-                <LockerItem 
-                  key={locker.id} 
-                  id={locker.id} 
-                  status={locker.status} 
-                />
+        {/* Left Column: Active Locker Pickups */}
+        <div className="section-card locker-section" style={{ flex: 2 }}>
+          <h3 className="section-heading">My Active Rentals & Pickups</h3>
+          <div className="locker-grid" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            
+            {isLoading ? (
+               <p style={{ color: "#94a3b8" }}>Loading your data...</p>
+            ) : rentals.length === 0 ? (
+               <div style={{ padding: "30px", textAlign: "center", backgroundColor: "#1e293b", borderRadius: "10px", color: "#94a3b8" }}>
+                 <p style={{ fontSize: "1.2rem", marginBottom: "10px" }}>You have no active rentals.</p>
+                 <p>Head to the Marketplace to rent your first device!</p>
+               </div>
+            ) : (
+              rentals.map((rental) => (
+                <div key={rental.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#1e293b", padding: "15px 20px", borderRadius: "10px", borderLeft: rental.status === "Active" ? "4px solid #2ecc71" : "4px solid #e74c3c" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 5px 0", color: "white", fontSize: "1.1rem" }}>{rental.item_title}</h4>
+                    <p style={{ margin: "0", color: "#94a3b8", fontSize: "0.9rem" }}>Rented on: {rental.rental_date}</p>
+                  </div>
+                  
+                  {/* UPDATE: Added flexible column for the right side to hold the new button */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ backgroundColor: "#34495e", padding: "5px 12px", borderRadius: "20px", display: "inline-block", color: "#f1c40f", fontWeight: "bold", fontSize: "0.9rem" }}>
+                        🔒 {rental.locker_label}
+                      </div>
+                      <p style={{ margin: "0", color: rental.status === "Active" ? "#2ecc71" : "#e74c3c", fontSize: "0.85rem", fontWeight: "bold" }}>
+                        {rental.status === "Active" ? `Due: ${rental.return_date}` : "OVERDUE"}
+                      </p>
+                    </div>
+                    
+                    {/* NEW OPEN LOCKER BUTTON */}
+                    <button 
+                      onClick={() => alert(`Connecting to IoT Locker ${rental.locker_label}... \n(Hardware integration coming soon!)`)}
+                      style={{
+                        backgroundColor: "#3498db", 
+                        color: "white", 
+                        border: "none", 
+                        padding: "8px 16px", 
+                        borderRadius: "5px", 
+                        cursor: "pointer", 
+                        fontWeight: "bold",
+                        fontSize: "0.85rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#2980b9"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#3498db"}
+                    >
+                      🔓 Open Locker
+                    </button>
+                  </div>
+
+                </div>
               ))
-            }
+            )}
+            
           </div>
         </div>
 
-        <div className="section-card activity-section">
+        {/* Right Column: Activity Feed */}
+        <div className="section-card activity-section" style={{ flex: 1 }}>
           <h3 className="section-heading">Recent Activity</h3>
           <div className="activity-list">
-            <div className="activity-item">
-              <span className="activity-time">10:30 AM</span>
-              <span className="activity-desc">Arduino Uno rented by Francis B.</span>
-            </div>
-            <div className="activity-item">
-              <span className="activity-time">09:15 AM</span>
-              <span className="activity-desc">Locker A1 unlocked by admin</span>
-            </div>
+             {rentals.slice(0, 4).map(rental => (
+                <div className="activity-item" key={`act-${rental.id}`}>
+                  <span className="activity-time" style={{ fontSize: "0.8rem", color: "#3498db" }}>{rental.rental_date.split(',')[0]}</span>
+                  <span className="activity-desc">You rented the <strong>{rental.item_title}</strong>. Check locker {rental.locker_label}.</span>
+                </div>
+             ))}
+             {rentals.length === 0 && <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>No recent activity.</p>}
           </div>
         </div>
       </div>

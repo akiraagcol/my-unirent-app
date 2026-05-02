@@ -1,45 +1,56 @@
-import React, { useState, useEffect } from "react"; // Added useEffect
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/Rentals.css";
 
-// Destructure addToCart and cartCount from props
 export default function RentalsPage({ addToCart, cartCount }) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  // Task 3: State for dynamic inventory
   const [inventory, setInventory] = useState([]);
-  const [loading, setLoading] = useState(true); // Task 8 Feedback
-  const [error, setError] = useState(null); // Task 8 Feedback
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
   const categories = [
     "All", "Microcontrollers", "Sensors", "Actuators", 
     "Communication Modules", "Development Boards", "Power Modules", "Display Modules"
   ];
 
-  // Task 3 & 7: Fetch data from Django API
+  // Securely Fetch real data from Django API
   useEffect(() => {
-    // Note: Since this is the Web UI on your Mac, use 127.0.0.1
-    fetch("http://127.0.0.1:8000/api/items/")
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/"); // Kick out unauthenticated users
+      return;
+    }
+
+    // Connect to the correct global IP and pass the Token
+    fetch("http://192.168.5.95:8000/api/items/", {
+      method: "GET",
+      headers: {
+        "Authorization": `Token ${token}`,
+        "Content-Type": "application/json"
+      }
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch inventory");
         return res.json();
       })
       .then((data) => {
-        setInventory(data); // Data from Database flows to Web UI
+        setInventory(data); // Real data flowing from Backend!
         setLoading(false);
       })
       .catch((err) => {
         console.error("Web API Error:", err);
-        setError(err.message);
+        setError("Could not connect to the database. Make sure Django is running.");
         setLoading(false);
       });
-  }, []);
+  }, [navigate]);
 
   const filteredInventory = inventory.filter(item => {
-    // Ensure we handle naming differences between your static array and API fields
-    const itemName = item.name || item.title || ""; 
+    // Matching exact field names from Django models.py
+    const itemName = item.title || ""; 
     const itemCategory = item.category || "General";
     
     const matchesSearch = itemName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -47,11 +58,8 @@ export default function RentalsPage({ addToCart, cartCount }) {
     return matchesSearch && matchesCategory;
   });
 
-  // Task 8: Handle Loading State
-  if (loading) return <div className="rentals-container"><p style={{padding: "20px"}}>Loading Marketplace...</p></div>;
-
-  // Task 8: Handle Error State
-  if (error) return <div className="rentals-container"><p style={{padding: "20px", color: "red"}}>Error: {error}</p></div>;
+  if (loading) return <div className="rentals-container"><p style={{padding: "20px", color: "white"}}>Loading Marketplace...</p></div>;
+  if (error) return <div className="rentals-container"><p style={{padding: "20px", color: "#ff6b6b"}}>Error: {error}</p></div>;
 
   return (
     <div className="rentals-container">
@@ -102,38 +110,51 @@ export default function RentalsPage({ addToCart, cartCount }) {
           {filteredInventory.length > 0 ? (
             filteredInventory.map((item) => (
               <div key={item.id} className="device-card">
-                <div className="card-image-box" onClick={() => navigate("/rent-details")}>
+                {/* FIXED: Passed the item data into the state object for the image click */}
+                <div className="card-image-box" onClick={() => navigate("/rent-details", { state: { item: item } })}>
                   <span className={`status-tag ${(item.status || "AVAILABLE").toLowerCase()}`}>
                     {item.status || "AVAILABLE"}
                   </span>
-                  {/* Task 7: Display images if they exist in your API */}
-                  {item.img ? (
-                    <img src={item.img} alt={item.name} className="card-image-preview" />
+                  
+                  {/* Safely load physical image files from Django */}
+                  {item.image ? (
+                    <img 
+                      src={item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`} 
+                      alt={item.title} 
+                      className="card-image-preview" 
+                    />
                   ) : (
-                    <p className="no-img-text">No Image Preview</p>
+                    <div className="no-img-placeholder" style={{height: "150px", backgroundColor: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8"}}>
+                      No Image
+                    </div>
                   )}
                 </div>
                 <div className="device-details">
-                  <h3 className="item-name" onClick={() => navigate("/rent-details")}>
-                    {item.name || item.title}
+                  {/* FIXED: Passed the item data into the state object for the title click */}
+                  <h3 className="item-name" onClick={() => navigate("/rent-details", { state: { item: item } })}>
+                    {item.title}
                   </h3>
-                  <p className="item-category">{item.category}</p>
-                  <p className="item-price">₱{item.price}<span className="per-day">/day</span></p>
+                  <p className="item-category" style={{color: "#94a3b8", fontSize: "0.85rem", marginBottom: "5px"}}>{item.category}</p>
+                  <p className="item-price" style={{color: "#3498db", fontWeight: "bold"}}>₱{item.price}<span className="per-day" style={{color: "#64748b", fontSize: "0.8rem", fontWeight: "normal"}}>/day</span></p>
                   
                   <button 
                     type="button"
                     className="rent-action-btn" 
-                    disabled={item.status === "OCCUPIED"}
+                    disabled={item.status === "Occupied"}
                     onClick={() => addToCart(item)}
+                    style={{
+                      width: "100%", marginTop: "10px", padding: "10px", borderRadius: "5px", border: "none", cursor: item.status === "Occupied" ? "not-allowed" : "pointer",
+                      backgroundColor: item.status === "Occupied" ? "#475569" : "#f1c40f", color: item.status === "Occupied" ? "#94a3b8" : "#1e293b", fontWeight: "bold"
+                    }}
                   >
-                    {item.status === "OCCUPIED" ? "Occupied" : "Add to Cart"}
+                    {item.status === "Occupied" ? "Occupied" : "Add to Cart"}
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <section className="no-results-msg">
-              <p>No results found for "{searchQuery}"</p>
+            <section className="no-results-msg" style={{color: "white", padding: "20px"}}>
+              <p>No marketplace items available.</p>
             </section>
           )}
         </div>

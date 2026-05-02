@@ -15,7 +15,6 @@ export default function SignUpPage() {
     college: ""
   });
   
-  // New states for handling loading and errors from the backend
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -25,24 +24,20 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear old errors
+    setErrorMessage(""); 
     
-    // 1. Password Match Check
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match! Please try again.");
       return; 
     }
     
-    // 2. Start loading
     setIsLoading(true);
 
     try {
-      // 3. Send data to your Django Backend
       const response = await fetch("http://192.168.5.95:8000/api/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Mapping frontend fields to what Django expects
           username: formData.studentId, 
           password: formData.password,
           email: formData.email,
@@ -52,13 +47,12 @@ export default function SignUpPage() {
         }),
       });
 
-      // 4. Handle Backend Response
       if (response.ok) {
-        alert("Account created successfully!");
-        navigate("/"); // Send them back to Sign In
+        alert("Account created successfully! You can now log in.");
+        navigate("/"); // Send them to the Login page
       } else {
         const data = await response.json();
-        setErrorMessage(data.error || "Registration failed. Username may already exist.");
+        setErrorMessage(data.error || "Registration failed. Please check your details.");
       }
     } catch (error) {
       console.error("Network Error:", error);
@@ -72,12 +66,11 @@ export default function SignUpPage() {
     <div className="welcome-split-screen">
       <div className="form-column">
         <div className="form-container" style={{ maxWidth: "450px" }}>
-          <img src="/src/assets/adaptive-icon.png" alt="UniRent Logo" className="form-logo" style={{ width: "150px" }} />
+          <img src="/src/assets/adaptive-icon.png" alt="App Logo" className="form-logo" style={{ width: "150px" }} />
           <h2 className="welcome-title" style={{ marginBottom: "20px" }}>Create Account</h2>
           
           <form onSubmit={handleSignUp} className="signin-form">
             
-            {/* Display Backend Errors Here */}
             {errorMessage && (
               <div style={{ color: "red", marginBottom: "15px", fontSize: "0.9rem", textAlign: "center", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px" }}>
                 {errorMessage}
@@ -142,7 +135,7 @@ export default function SignUpPage() {
       <div className="branding-column">
         <div className="overlay-gradient"></div>
         <div className="branding-text">
-          <h1 className="main-brand-name">UniRent</h1>
+          <h1 className="main-brand-name">Sign Up</h1>
           <p className="brand-tagline">Join the community and start building your future.</p>
         </div>
       </div>

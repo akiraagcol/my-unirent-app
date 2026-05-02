@@ -9,14 +9,38 @@ export default function WelcomePage() {
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Added loading state
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    // Simple validation for your project
-    if (studentId === "2023307477" && password === "123456") {
-      navigate("/dashboard");
-    } else {
-      setError("Invalid credentials. Try again!");
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Connecting to your MacBook's Django backend
+      const response = await fetch("http://192.168.5.95:8000/api/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: studentId, // Django expects 'username'
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Lab 9 Task: Store token upon successful login
+        localStorage.setItem("token", data.token); 
+        setIsLoading(false);
+        navigate("/dashboard"); 
+      } else {
+        setIsLoading(false);
+        setError(data.error || "Invalid credentials. Try again!");
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setError("Network error: Cannot reach server.");
     }
   };
 
@@ -28,7 +52,7 @@ export default function WelcomePage() {
           <img src="/src/assets/adaptive-icon.png" alt="UniRent Logo" className="form-logo" />
           <h2 className="welcome-title">Login to UniRent</h2>
           
-          {error && <p className="error-text">{error}</p>}
+          {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
 
           <form onSubmit={handleSignIn} className="signin-form">
             <div className="input-group">
@@ -53,7 +77,9 @@ export default function WelcomePage() {
               />
             </div>
 
-            <button type="submit" className="login-btn">Log In</button>
+            <button type="submit" className="login-btn" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Log In"}
+            </button>
             
             <div className="divider-line"></div>
 

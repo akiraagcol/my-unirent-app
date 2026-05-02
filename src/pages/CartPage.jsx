@@ -6,7 +6,7 @@ export default function CartPage({ cart, removeFromCart }) {
   const navigate = useNavigate();
   
   // Logic: Calculate subtotal from items
-  const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = cart.reduce((sum, item) => sum + Number(item.price), 0);
   const serviceFee = 50;
   const totalAmount = subtotal + serviceFee;
 
@@ -45,7 +45,7 @@ export default function CartPage({ cart, removeFromCart }) {
                     </div>
                     
                     <div className="item-text-info">
-                      <h3 className="item-display-name">{item.name}</h3>
+                    <h3 className="item-display-name">{item.title || item.name}</h3>
                       <p className="item-display-cat">{item.category}</p>
                       <p className="item-display-price">₱{item.price}<span className="unit">/day</span></p>
                     </div>
@@ -78,9 +78,16 @@ export default function CartPage({ cart, removeFromCart }) {
                   <hr className="summary-divider" />
                   <div className="summary-row total-row">
                     <span>Total Amount</span>
-                    <span className="val-final">₱{totalAmount}</span>
+                    {/* Added .toFixed(2) to ensure it displays perfectly as currency */}
+                    <span className="val-final">₱{totalAmount.toFixed(2)}</span>
                   </div>
-                  <button type="button" className="btn-checkout-proceed">
+                  
+                  {/* Updated to navigate to the new Checkout screen */}
+                  <button 
+                    type="button" 
+                    className="btn-checkout-proceed"
+                    onClick={() => navigate("/checkout")}
+                  >
                     Proceed to Checkout
                   </button>
                 </div>
