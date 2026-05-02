@@ -1,18 +1,13 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// Note: Removed CustomButton import if you aren't actively using it in this file
 import "../styles/RentDetails.css";
 
-// We accept addToCart as a prop because App.jsx passes it!
 export default function RentDetailsPage({ addToCart }) {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Catch the item passed from the RentalsPage
   const item = location.state?.item;
 
-  // Security fallback: If someone refreshes the page or types the URL manually 
-  // without clicking an item first, send them back to the marketplace.
   if (!item) {
     return (
       <div className="modern-rent-bg" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', flexDirection: 'column'}}>
@@ -24,7 +19,6 @@ export default function RentDetailsPage({ addToCart }) {
     );
   }
 
-  // Safely format the image URL just like we did on the Rentals page
   const imageUrl = item.image 
     ? (item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`) 
     : null;
@@ -41,15 +35,25 @@ export default function RentDetailsPage({ addToCart }) {
         <section className="main-product-card">
           {/* Left: Image Gallery Section */}
           <div className="gallery-column">
-            <div className="main-image-wrapper">
-              <span className={`floating-badge ${(item.status || "AVAILABLE").toLowerCase()}`}>
+            <div className="main-image-wrapper" style={{ position: "relative", width: "100%", height: "400px", backgroundColor: "white", borderRadius: "10px", overflow: "hidden" }}>
+              <span className={`floating-badge ${(item.status || "AVAILABLE").toLowerCase()}`} style={{ position: "absolute", top: "20px", left: "20px", zIndex: 2 }}>
                 {item.status || "AVAILABLE"}
               </span>
               
               {imageUrl ? (
-                <img src={imageUrl} alt={item.title} className="big-image" style={{ objectFit: 'contain', backgroundColor: 'white' }} />
+                <img 
+                  src={imageUrl} 
+                  alt={item.title} 
+                  className="big-image" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'contain', // Prevents stretching while keeping the image completely visible
+                    backgroundColor: 'white' 
+                  }} 
+                />
               ) : (
-                <div className="big-image" style={{ backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>
+                <div className="big-image" style={{ width: "100%", height: "100%", backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>
                   No Image Provided
                 </div>
               )}
@@ -58,7 +62,6 @@ export default function RentDetailsPage({ addToCart }) {
 
           {/* Right: Essential Info Section */}
           <div className="details-column">
-            {/* Swapped item.name for item.title (Django field) */}
             <h1 className="product-title">{item.title}</h1> 
             <p className="item-category" style={{color: "#64748b", fontWeight: "bold", textTransform: "uppercase", fontSize: "0.85rem"}}>{item.category}</p>
             
@@ -78,11 +81,9 @@ export default function RentDetailsPage({ addToCart }) {
               <div className="avatar-circle">👤</div>
               <div className="owner-info">
                 <p className="posted-label">Posted by</p>
-                {/* Note: Owner is currently a Django ID number. You can expand the Django Serializer later to send the real name! */}
                 <p className="owner-name-text">Verified User (ID: {item.owner})</p>
                 <div className="rating-row">⭐ {item.rating || 0} <span>(0 reviews)</span></div>
               </div>
-              <button type="button" className="chat-btn-modern">Chat</button>
             </div>
 
             <div className="purchase-buttons">
@@ -92,7 +93,7 @@ export default function RentDetailsPage({ addToCart }) {
                 disabled={item.status === "Occupied"}
                 onClick={() => {
                   addToCart(item);
-                  navigate("/cart"); // Automatically take them to cart after adding
+                  navigate("/cart"); 
                 }}
                 style={{ opacity: item.status === "Occupied" ? 0.5 : 1, cursor: item.status === "Occupied" ? "not-allowed" : "pointer" }}
               >
@@ -116,15 +117,12 @@ export default function RentDetailsPage({ addToCart }) {
             <h3>Item Description</h3>
             <p>{item.description || "No description provided by the owner."}</p>
             
-            <h3 className="mt-20">Locker Location</h3>
-            <ul>
-              <li>Pickup at: <strong>{item.locker_label}</strong></li>
-            </ul>
+            {/* REMOVED: The Locker Location hardcoded text has been removed entirely! */}
           </section>
 
           <aside className="terms-box shadow-card">
             <h3>Rental Terms</h3>
-            <p>Minimum 2 days rental. Return in original condition to the assigned locker. Late fees apply for overdue returns.</p>
+            <p>Minimum 2 days rental. Return in original condition to the assigned IoT Locker. Late fees apply for overdue returns.</p>
           </aside>
         </div>
       </main>

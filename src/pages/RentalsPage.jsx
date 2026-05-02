@@ -21,11 +21,10 @@ export default function RentalsPage({ addToCart, cartCount }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      navigate("/"); // Kick out unauthenticated users
+      navigate("/"); 
       return;
     }
 
-    // Connect to the correct global IP and pass the Token
     fetch("http://192.168.5.95:8000/api/items/", {
       method: "GET",
       headers: {
@@ -38,7 +37,7 @@ export default function RentalsPage({ addToCart, cartCount }) {
         return res.json();
       })
       .then((data) => {
-        setInventory(data); // Real data flowing from Backend!
+        setInventory(data); 
         setLoading(false);
       })
       .catch((err) => {
@@ -49,7 +48,6 @@ export default function RentalsPage({ addToCart, cartCount }) {
   }, [navigate]);
 
   const filteredInventory = inventory.filter(item => {
-    // Matching exact field names from Django models.py
     const itemName = item.title || ""; 
     const itemCategory = item.category || "General";
     
@@ -87,7 +85,6 @@ export default function RentalsPage({ addToCart, cartCount }) {
           >
             🛒 <span className="cart-badge">{cartCount || 0}</span>
           </button>
-          <button type="button" className="icon-btn">🔔</button>
           <button type="button" className="icon-btn profile-circle" onClick={() => navigate("/profile")}>👤</button>
         </div>
       </header>
@@ -110,28 +107,37 @@ export default function RentalsPage({ addToCart, cartCount }) {
           {filteredInventory.length > 0 ? (
             filteredInventory.map((item) => (
               <div key={item.id} className="device-card">
-                {/* FIXED: Passed the item data into the state object for the image click */}
-                <div className="card-image-box" onClick={() => navigate("/rent-details", { state: { item: item } })}>
-                  <span className={`status-tag ${(item.status || "AVAILABLE").toLowerCase()}`}>
+                <div 
+                  className="card-image-box" 
+                  onClick={() => navigate("/rent-details", { state: { item: item } })}
+                  style={{ cursor: "pointer", position: "relative", width: "100%", height: "200px" }} // Added explicit wrapper height
+                >
+                  <span className={`status-tag ${(item.status || "AVAILABLE").toLowerCase()}`} style={{ position: "absolute", top: "10px", right: "10px", zIndex: 2 }}>
                     {item.status || "AVAILABLE"}
                   </span>
                   
-                  {/* Safely load physical image files from Django */}
                   {item.image ? (
                     <img 
                       src={item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`} 
                       alt={item.title} 
                       className="card-image-preview" 
+                      style={{ 
+                        width: "100%", 
+                        height: "100%", 
+                        objectFit: "cover", // This perfectly crops the image to fit the 200px box
+                        borderTopLeftRadius: "10px", 
+                        borderTopRightRadius: "10px" 
+                      }}
                     />
                   ) : (
-                    <div className="no-img-placeholder" style={{height: "150px", backgroundColor: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8"}}>
+                    <div className="no-img-placeholder" style={{width: "100%", height: "100%", backgroundColor: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", borderTopLeftRadius: "10px", borderTopRightRadius: "10px"}}>
                       No Image
                     </div>
                   )}
                 </div>
+                
                 <div className="device-details">
-                  {/* FIXED: Passed the item data into the state object for the title click */}
-                  <h3 className="item-name" onClick={() => navigate("/rent-details", { state: { item: item } })}>
+                  <h3 className="item-name" onClick={() => navigate("/rent-details", { state: { item: item } })} style={{cursor: "pointer"}}>
                     {item.title}
                   </h3>
                   <p className="item-category" style={{color: "#94a3b8", fontSize: "0.85rem", marginBottom: "5px"}}>{item.category}</p>

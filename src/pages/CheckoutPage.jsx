@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Cart.css"; 
 
@@ -6,11 +6,37 @@ export default function CheckoutPage({ cart, clearCart }) {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  
+  // NEW: State for Locker Selection
+  const [selectedLocker, setSelectedLocker] = useState("");
+  const [occupiedLockers, setOccupiedLockers] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
 
+  const lockerOptions = ["A1", "B2", "C3", "D4", "E5"];
+
+  // Math logic
   const subtotal = cart.reduce((sum, item) => sum + Number(item.price), 0);
   const serviceFee = 50;
   const totalAmount = subtotal + serviceFee;
+
+  // NEW: Fetch items to see which lockers are currently in use
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("http://192.168.5.95:8000/api/items/", {
+      headers: { "Authorization": `Token ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      // Find all items that are "Occupied" and extract their locker labels
+      const inUse = data
+        .filter(item => item.status === "Occupied" && item.locker_label)
+        .map(item => item.locker_label);
+      setOccupiedLockers(inUse);
+    })
+    .catch(err => console.error("Error fetching locker availability:", err));
+  }, []);
 
   if (!cart || cart.length === 0) {
     return (
@@ -23,17 +49,17 @@ export default function CheckoutPage({ cart, clearCart }) {
     );
   }
 
-  // The Final API Call to Django
   const handleConfirmOrder = async () => {
+    // Validate locker selection before proceeding
+    if (!selectedLocker) {
+      setErrorMsg("Please select an available IoT locker to proceed.");
+      return;
+    }
+
     setIsProcessing(true);
     setErrorMsg("");
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/");
-      return;
-    }
-
     const itemIds = cart.map(item => item.id);
 
     try {
@@ -43,15 +69,16 @@ export default function CheckoutPage({ cart, clearCart }) {
           "Authorization": `Token ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ item_ids: itemIds })
+        // NEW: Send the chosen locker to Django
+        body: JSON.stringify({ item_ids: itemIds, locker_id: selectedLocker }) 
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Order Confirmed! Check your Dashboard for locker pickup instructions.");
-        clearCart(); // Empty the cart
-        navigate("/dashboard"); // Send them to their new dashboard
+        alert(`Order Confirmed! Your items will be assigned to Locker ${selectedLocker}.`);
+        clearCart(); 
+        navigate("/dashboard"); 
       } else {
         setErrorMsg(data.error || "Checkout failed.");
       }
@@ -76,19 +103,42 @@ export default function CheckoutPage({ cart, clearCart }) {
         <main className="cart-main-layout">
           <div className="cart-grid-desktop">
 
-            {/* LEFT COLUMN: Pickup & Payment Details */}
             <section className="cart-items-section" style={{ backgroundColor: "#1e293b", padding: "30px", borderRadius: "10px", color: "white" }}>
               <h2 style={{ marginBottom: "25px", fontSize: "1.5rem", borderBottom: "1px solid #334155", paddingBottom: "10px" }}>
-                Pickup & Payment
+                Pickup Details
               </h2>
 
               {errorMsg && <div style={{color: "red", backgroundColor: "#ffe6e6", padding: "10px", marginBottom: "15px", borderRadius: "5px"}}>{errorMsg}</div>}
 
+              {/* NEW: Interactive Locker Selection Grid */}
               <div style={{ marginBottom: "25px" }}>
-                <h3 style={{ fontSize: "1.1rem", color: "#94a3b8", marginBottom: "10px" }}>Rental Duration</h3>
-                <p style={{ backgroundColor: "#0f172a", padding: "15px", borderRadius: "5px", border: "1px solid #334155" }}>
-                  Standard 3-Day Rental. Return date will be calculated automatically upon confirmation.
-                </p>
+                <h3 style={{ fontSize: "1.1rem", color: "#94a3b8", marginBottom: "10px" }}>Choose an Available Locker</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px" }}>
+                  {lockerOptions.map(locker => {
+                    const isOccupied = occupiedLockers.includes(locker);
+                    return (
+                      <button
+                        key={locker}
+                        type="button"
+                        disabled={isOccupied}
+                        onClick={() => setSelectedLocker(locker)}
+                        style={{
+                          padding: "15px",
+                          borderRadius: "8px",
+                          border: selectedLocker === locker ? "2px solid #f1c40f" : "1px solid #334155",
+                          backgroundColor: isOccupied ? "#0f172a" : (selectedLocker === locker ? "#34495e" : "#1e293b"),
+                          color: isOccupied ? "#475569" : "white",
+                          cursor: isOccupied ? "not-allowed" : "pointer",
+                          fontWeight: "bold",
+                          opacity: isOccupied ? 0.6 : 1,
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {locker} {isOccupied && "🔒"}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div style={{ marginBottom: "25px" }}>
@@ -99,20 +149,11 @@ export default function CheckoutPage({ cart, clearCart }) {
                   style={{ width: "100%", padding: "15px", borderRadius: "5px", backgroundColor: "#0f172a", color: "white", border: "1px solid #334155", outline: "none", fontSize: "1rem" }}
                 >
                   <option value="cash">Cash on Pickup (Locker Kiosk)</option>
+                
                 </select>
-              </div>
-
-              <div>
-                <h3 style={{ fontSize: "1.1rem", color: "#94a3b8", marginBottom: "10px" }}>IoT Locker Instructions</h3>
-                <ul style={{ paddingLeft: "20px", color: "#cbd5e1", lineHeight: "1.8" }}>
-                  <li>Once confirmed, a specific IoT locker will be assigned to you.</li>
-                  <li>Visit the UniRent smart locker station on campus.</li>
-                  <li>Go to your Dashboard and click "Unlock" next to your active rental.</li>
-                </ul>
               </div>
             </section>
 
-            {/* RIGHT COLUMN: Final Order Summary */}
             <aside className="cart-summary-sidebar">
               <div className="sticky-summary-box">
                 <h3 className="summary-card-title">Final Order Summary</h3>
@@ -140,12 +181,13 @@ export default function CheckoutPage({ cart, clearCart }) {
                   <span className="val-final">₱{totalAmount.toFixed(2)}</span>
                 </div>
                 
+                {/* Submit button is disabled until they pick a locker */}
                 <button 
                   type="button" 
                   className="btn-checkout-proceed"
                   onClick={handleConfirmOrder}
-                  disabled={isProcessing}
-                  style={{ opacity: isProcessing ? 0.7 : 1, cursor: isProcessing ? "wait" : "pointer", marginTop: "15px" }}
+                  disabled={isProcessing || !selectedLocker}
+                  style={{ opacity: (isProcessing || !selectedLocker) ? 0.6 : 1, cursor: (isProcessing || !selectedLocker) ? "not-allowed" : "pointer", marginTop: "15px" }}
                 >
                   {isProcessing ? "Processing Security..." : "Confirm Rental"}
                 </button>

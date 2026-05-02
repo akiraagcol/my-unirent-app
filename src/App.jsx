@@ -8,11 +8,9 @@ import RentalsPage from './pages/RentalsPage';
 import ProfilePage from "./pages/ProfilePage";
 import RentDetailsPage from './pages/RentDetailsPage';
 import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/CheckoutPage'; // IMPORT THE NEW PAGE
-import MessagesPage from './pages/MessagesPage'; 
+import CheckoutPage from './pages/CheckoutPage'; 
 
 function App() {
-  // --- CART STATE ---
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('uniRentCart');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -20,21 +18,12 @@ function App() {
   
   const [toast, setToast] = useState(null);
 
-  // --- SYSTEM NOTIFICATIONS STATE ---
-  const [systemNotifications] = useState([
-    { id: 1, text: "New component posted by Francis B.", time: "2m ago", type: "post", link: "/rentals" },
-    { id: 2, text: "Your component received in Locker A1.", time: "10m ago", type: "locker", link: "/dashboard" },
-    { id: 3, text: "Locker B3 has been closed.", time: "1h ago", type: "locker", link: "/dashboard" },
-    { id: 4, text: "Arduino Uno R3 rented by John D.", time: "2h ago", type: "rent", link: "/dashboard" },
-  ]);
-
   useEffect(() => {
     localStorage.setItem('uniRentCart', JSON.stringify(cart));
   }, [cart]);
   
   const addToCart = (product) => {
     setCart((prev) => [...prev, product]);
-    // Updated to use product.title (since Django uses 'title' instead of 'name')
     setToast(`${product.title || product.name || 'Item'} added to cart!`);
     setTimeout(() => setToast(null), 3000);
   };
@@ -43,45 +32,24 @@ function App() {
     setCart((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  // FIXED: Moved clearCart outside so it's a standalone function
   const clearCart = () => setCart([]);
 
   return (
     <Router>
-      {/* Toast for Add to Cart feedback */}
       {toast && <div className="toast-notification" role="alert">{toast}</div>}
 
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/signup" element={<SignUpPage />} />
         
-        {/* Pass system notifications to Dashboard */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <Dashboard 
-              cartCount={cart.length} 
-              notifications={systemNotifications} 
-            />
-          } 
-        />
+        {/* Removed notifications prop */}
+        <Route path="/dashboard" element={<Dashboard cartCount={cart.length} />} />
         
-        <Route 
-          path="/rentals" 
-          element={<RentalsPage addToCart={addToCart} cartCount={cart.length} />} 
-        />
-        
+        <Route path="/rentals" element={<RentalsPage addToCart={addToCart} cartCount={cart.length} />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/rent-details" element={<RentDetailsPage addToCart={addToCart} />} />
-        
-        {/* Passed the clearCart function as a prop to the CartPage */}
         <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} clearCart={clearCart} />} />
-        
-        {/* THE NEW CHECKOUT ROUTE */}
         <Route path="/checkout" element={<CheckoutPage cart={cart} clearCart={clearCart} />} />
-        
-        {/* NEW MESSAGES ROUTE: This connects the Messages UI */}
-        <Route path="/messages" element={<MessagesPage />} />
       </Routes>
     </Router>
   );
