@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Welcome.css";
+import { API_BASE_URL } from "../config"; // 🟢 ADDED: Dynamic IP Config
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ export default function WelcomePage() {
     setError("");
 
     try {
-      // Connecting to your MacBook's Django backend
-      const response = await fetch("http://192.168.5.95:8000/api/login/", {
+      // 🟢 FIXED: Using dynamic URL and the new /token/ endpoint for JWT
+      const response = await fetch(`${API_BASE_URL}/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -30,13 +31,14 @@ export default function WelcomePage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Lab 9 Task: Store token upon successful login
-        localStorage.setItem("token", data.token); 
+        // 🟢 FIXED: JWT uses 'access' instead of 'token'
+        localStorage.setItem("token", data.access); 
         setIsLoading(false);
         navigate("/dashboard"); 
       } else {
         setIsLoading(false);
-        setError(data.error || "Invalid credentials. Try again!");
+        // JWT usually sends error details in the 'detail' key
+        setError(data.detail || data.error || "Invalid credentials. Try again!");
       }
     } catch (err) {
       setIsLoading(false);

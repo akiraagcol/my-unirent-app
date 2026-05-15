@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/LoginRedesign.css";
+import { API_BASE_URL } from "../config";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,28 +17,25 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Updated to your MacBook's network IP
-      const response = await fetch("http://192.168.5.95:8000/api/login/", {
+      const response = await fetch(`${API_BASE_URL}/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: studentId, 
-          password: password,
+            username: studentId, // 🟢 FIXED: Removed "formData."
+            password: password   // 🟢 FIXED: Removed "formData."
         }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Task 6: Store token upon successful login
-        localStorage.setItem("token", data.token); 
-        setIsLoading(false);
+    });
+    
+    if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access); 
+        
+        alert("Login successful!");
         navigate("/dashboard"); 
-      } else {
-        setIsLoading(false);
-        // Task 8: Handle error responses from API
-        setError(data.error || "Invalid credentials.");
-      }
+    } else {
+        setError("Invalid credentials."); // 🟢 FIXED: Changed from "setErrorMessage"
+        setIsLoading(false); // Added this so the loading spinner stops on failure
+    }
     } catch (err) {
       setIsLoading(false);
       setError("Network error: Cannot reach server.");

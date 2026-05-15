@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Cart.css"; 
+import { API_BASE_URL } from "../config"; // 🟢 ADDED: Dynamic IP Config
 
 export default function CheckoutPage({ cart, clearCart }) {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   
-  // NEW: State for Locker Selection
+  // State for Locker Selection
   const [selectedLocker, setSelectedLocker] = useState("");
   const [occupiedLockers, setOccupiedLockers] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -19,21 +20,25 @@ export default function CheckoutPage({ cart, clearCart }) {
   const serviceFee = 50;
   const totalAmount = subtotal + serviceFee;
 
-  // NEW: Fetch items to see which lockers are currently in use
+  // Fetch items to see which lockers are currently in use
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    fetch("http://192.168.5.95:8000/api/items/", {
-      headers: { "Authorization": `Token ${token}` }
+    // 🟢 FIXED: Using dynamic API_BASE_URL and Bearer token
+    fetch(`${API_BASE_URL}/items/`, {
+      headers: { "Authorization": `Bearer ${token}` }
     })
     .then(res => res.json())
     .then(data => {
       // Find all items that are "Occupied" and extract their locker labels
-      const inUse = data
-        .filter(item => item.status === "Occupied" && item.locker_label)
-        .map(item => item.locker_label);
-      setOccupiedLockers(inUse);
+      // Added Array.isArray check to prevent mapping errors
+      if (Array.isArray(data)) {
+        const inUse = data
+          .filter(item => item.status === "Occupied" && item.locker_label)
+          .map(item => item.locker_label);
+        setOccupiedLockers(inUse);
+      }
     })
     .catch(err => console.error("Error fetching locker availability:", err));
   }, []);
@@ -63,13 +68,13 @@ export default function CheckoutPage({ cart, clearCart }) {
     const itemIds = cart.map(item => item.id);
 
     try {
-      const response = await fetch("http://192.168.5.95:8000/api/checkout/", {
+      // 🟢 FIXED: Using dynamic API_BASE_URL and Bearer token for the POST transaction
+      const response = await fetch(`${API_BASE_URL}/checkout/`, {
         method: "POST",
         headers: {
-          "Authorization": `Token ${token}`,
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        // NEW: Send the chosen locker to Django
         body: JSON.stringify({ item_ids: itemIds, locker_id: selectedLocker }) 
       });
 
@@ -110,7 +115,7 @@ export default function CheckoutPage({ cart, clearCart }) {
 
               {errorMsg && <div style={{color: "red", backgroundColor: "#ffe6e6", padding: "10px", marginBottom: "15px", borderRadius: "5px"}}>{errorMsg}</div>}
 
-              {/* NEW: Interactive Locker Selection Grid */}
+              {/* Interactive Locker Selection Grid */}
               <div style={{ marginBottom: "25px" }}>
                 <h3 style={{ fontSize: "1.1rem", color: "#94a3b8", marginBottom: "10px" }}>Choose an Available Locker</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px" }}>

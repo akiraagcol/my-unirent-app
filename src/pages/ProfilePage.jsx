@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config"; // 🟢 ADDED: Dynamic API Config
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -22,10 +23,14 @@ export default function ProfilePage() {
       return;
     }
 
-    fetch("http://192.168.5.95:8000/api/profile/", {
-      headers: { "Authorization": `Token ${token}` }
+    // 🟢 FIXED: Using dynamic API_BASE_URL and Bearer token
+    fetch(`${API_BASE_URL}/profile/`, {
+      headers: { "Authorization": `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch profile");
+          return res.json();
+      })
       .then(data => {
         setProfileData(data);
         setFormData({ full_name: data.full_name, username: data.username, password: "" });
@@ -49,10 +54,11 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch("http://192.168.5.95:8000/api/update-profile/", {
+      // 🟢 FIXED: Using dynamic API_BASE_URL and Bearer token
+      const response = await fetch(`${API_BASE_URL}/update-profile/`, {
         method: "PUT",
         headers: {
-          "Authorization": `Token ${token}`,
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
@@ -73,7 +79,10 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) return <div style={{ color: "white", padding: "50px", textAlign: "center" }}>Loading Profile...</div>;
+  if (isLoading) return <div style={{ color: "black", padding: "50px", textAlign: "center" }}>Loading Profile...</div>;
+
+  // 🟢 ADDED: Safety check if profileData is null after loading finishes
+  if (!profileData) return <div style={{ color: "black", padding: "50px", textAlign: "center" }}>Error: Could not load profile data.</div>;
 
   return (
     <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh", paddingBottom: "50px" }}>
@@ -94,17 +103,17 @@ export default function ProfilePage() {
           <div style={{ width: "100px", height: "100px", borderRadius: "50%", backgroundColor: "#e2e8f0", margin: "0 auto 15px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3rem" }}>
             👤
           </div>
-          <h2 style={{ margin: "0 0 5px 0", color: "#1e293b" }}>{profileData?.full_name}</h2>
-          <p style={{ margin: "0 0 20px 0", color: "#64748b" }}>ID: {profileData?.username}</p>
+          <h2 style={{ margin: "0 0 5px 0", color: "#1e293b" }}>{profileData.full_name}</h2>
+          <p style={{ margin: "0 0 20px 0", color: "#64748b" }}>ID: {profileData.username}</p>
 
           <div style={{ textAlign: "left", borderTop: "1px solid #e2e8f0", paddingTop: "20px", marginBottom: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
               <span style={{ color: "#64748b", fontSize: "0.9rem" }}>Member Since</span>
-              <span style={{ fontWeight: "bold", color: "#1e293b", fontSize: "0.9rem" }}>{profileData?.member_since}</span>
+              <span style={{ fontWeight: "bold", color: "#1e293b", fontSize: "0.9rem" }}>{profileData.member_since}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <span style={{ color: "#64748b", fontSize: "0.9rem" }}>Total Rentals</span>
-              <span style={{ fontWeight: "bold", color: "#1e293b", fontSize: "0.9rem" }}>{profileData?.rentals_count || 0}</span>
+              <span style={{ fontWeight: "bold", color: "#1e293b", fontSize: "0.9rem" }}>{profileData.rentals_count || 0}</span>
             </div>
           </div>
 

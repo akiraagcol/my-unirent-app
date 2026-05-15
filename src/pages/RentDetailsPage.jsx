@@ -20,7 +20,7 @@ export default function RentDetailsPage({ addToCart }) {
   }
 
   const imageUrl = item.image 
-    ? (item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`) 
+    ? (item.image.startsWith('http') ? item.image : `http://10.237.137.191:8000${item.image}`) 
     : null;
 
   return (

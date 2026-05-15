@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/Rentals.css";
+import { API_BASE_URL } from "../config"; // 🟢 ADDED: Dynamic Config Import
 
 export default function RentalsPage({ addToCart, cartCount }) {
   const navigate = useNavigate();
@@ -25,10 +26,11 @@ export default function RentalsPage({ addToCart, cartCount }) {
       return;
     }
 
-    fetch("http://192.168.5.95:8000/api/items/", {
+    // 🟢 FIXED: Using dynamic API_BASE_URL
+    fetch(`${API_BASE_URL}/items/`, {
       method: "GET",
       headers: {
-        "Authorization": `Token ${token}`,
+       "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
       }
     })
@@ -37,12 +39,18 @@ export default function RentalsPage({ addToCart, cartCount }) {
         return res.json();
       })
       .then((data) => {
-        setInventory(data); 
+        // 🟢 FIXED: Safety check to prevent the White Screen of Death
+        if (Array.isArray(data)) {
+            setInventory(data); 
+        } else {
+            setInventory([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
         console.error("Web API Error:", err);
         setError("Could not connect to the database. Make sure Django is running.");
+        setInventory([]); // 🟢 Fallback to prevent crash
         setLoading(false);
       });
   }, [navigate]);
@@ -110,7 +118,7 @@ export default function RentalsPage({ addToCart, cartCount }) {
                 <div 
                   className="card-image-box" 
                   onClick={() => navigate("/rent-details", { state: { item: item } })}
-                  style={{ cursor: "pointer", position: "relative", width: "100%", height: "200px" }} // Added explicit wrapper height
+                  style={{ cursor: "pointer", position: "relative", width: "100%", height: "200px" }} 
                 >
                   <span className={`status-tag ${(item.status || "AVAILABLE").toLowerCase()}`} style={{ position: "absolute", top: "10px", right: "10px", zIndex: 2 }}>
                     {item.status || "AVAILABLE"}
@@ -118,13 +126,14 @@ export default function RentalsPage({ addToCart, cartCount }) {
                   
                   {item.image ? (
                     <img 
-                      src={item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`} 
+                      /* 🟢 FIXED: Image URLs are now 100% dynamic! */
+                      src={item.image.startsWith('http') ? item.image : `http://${window.location.hostname}:8000${item.image}`} 
                       alt={item.title} 
                       className="card-image-preview" 
                       style={{ 
                         width: "100%", 
                         height: "100%", 
-                        objectFit: "cover", // This perfectly crops the image to fit the 200px box
+                        objectFit: "cover", 
                         borderTopLeftRadius: "10px", 
                         borderTopRightRadius: "10px" 
                       }}

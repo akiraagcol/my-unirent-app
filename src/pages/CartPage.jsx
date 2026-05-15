@@ -41,7 +41,7 @@ export default function CartPage({ cart, removeFromCart }) {
                 {cart.map((item, index) => {
                   // Format the image URL safely just like the Marketplace page
                   const imageUrl = item.image 
-                    ? (item.image.startsWith('http') ? item.image : `http://192.168.5.95:8000${item.image}`) 
+                    ? (item.image.startsWith('http') ? item.image : `http://10.237.137.191:8000${item.image}`) 
                     : null;
 
                   return (
@@ -115,3 +115,5 @@ export default function CartPage({ cart, removeFromCart }) {
     </div>
   );
 }
+
+//s

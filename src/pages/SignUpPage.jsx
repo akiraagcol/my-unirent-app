@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/LoginRedesign.css"; 
+import { API_BASE_URL } from "../config";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://192.168.5.95:8000/api/register/", {
+      const response = await fetch(`${API_BASE_URL}/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
